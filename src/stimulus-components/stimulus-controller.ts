@@ -9,8 +9,9 @@ import {type ActionEvent} from '@hotwired/stimulus';
 import {fetchFullUrlFromUserId, fetchUserIdFromHref} from 'se-ts-userscript-utilities/Utilities/UserInfo';
 import {buildDetailStringFromObject} from 'se-ts-userscript-utilities/Formatters/TextFormatting';
 import {
+    annotationTextLengthBounds,
     assertValidAnnotationTextLength,
-    assertValidDeleteUserReasonDetailTextLength
+    assertValidDeleteUserReasonDetailTextLength, deleteUserReasonDetailBounds
 } from 'se-ts-userscript-utilities/Validators/TextLengthValidators';
 
 
@@ -177,24 +178,39 @@ export function addBanEvasionModalController() {
                 .append(MODAL_FORM_HTML);
 
 
-            const deleteDetailTextArea: HTMLTextAreaElement = this[DELETION_DETAILS_TARGET];
-            // Prime delete detail text
-            deleteDetailTextArea.value = buildDetailStringFromObject({
-                'Main Account': mainUrl + '\n',
-                'Email': sockEmail,
-                'Real name': sockRealName,
-            }, ':  ', '\n', true) + '\n\n';
+            const jDeleteDetailTextArea: JQuery<HTMLTextAreaElement> = $(this[DELETION_DETAILS_TARGET]);
+            jDeleteDetailTextArea
+                .val(
+                    buildDetailStringFromObject({
+                        'Main Account': mainUrl + '\n',
+                        'Email': sockEmail,
+                        'Real name': sockRealName,
+                    }, ':  ', '\n', true) + '\n\n'
+                )
+                .charCounter({
+                    ...deleteUserReasonDetailBounds,
+                    target: jDeleteDetailTextArea.parent().find('span.text-counter')
+                });
 
-            // Focus cursor at end of textarea
-            deleteDetailTextArea.focus();
-            deleteDetailTextArea.setSelectionRange(deleteDetailTextArea.value.length, deleteDetailTextArea.value.length);
+            const nDeleteDetailTextArea = jDeleteDetailTextArea[0];
+            nDeleteDetailTextArea.focus();
+            nDeleteDetailTextArea.setSelectionRange(nDeleteDetailTextArea.value.length, nDeleteDetailTextArea.value.length);
 
             // Prime annotation detail text
-            this[ANNOTATION_DETAILS_TARGET].value = buildDetailStringFromObject({
-                'Deleted evasion account': sockUrl,
-                'Email': sockEmail,
-                'Real name': sockRealName
-            }, ': ', ' | ');
+            const jAnnotationTextarea: JQuery<HTMLTextAreaElement> = $(this[ANNOTATION_DETAILS_TARGET]);
+            //
+            jAnnotationTextarea
+                .val(
+                    buildDetailStringFromObject({
+                        'Deleted evasion account': sockUrl,
+                        'Email': sockEmail,
+                        'Real name': sockRealName
+                    }, ': ', ' | ')
+                )
+                .charCounter({
+                    ...annotationTextLengthBounds,
+                    target: jAnnotationTextarea.parent().find('span.text-counter')
+                });
             // Enable form submit button now that the fields are active
             this[CONTROLLER_SUBMIT_BUTTON_TARGET].disabled = false;
         },

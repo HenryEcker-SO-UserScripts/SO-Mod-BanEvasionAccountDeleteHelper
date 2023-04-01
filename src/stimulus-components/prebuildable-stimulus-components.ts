@@ -1,7 +1,4 @@
 import {html_beautify} from 'js-beautify';
-import {
-    annotationTextLengthBounds, deleteUserReasonDetailBounds
-} from 'se-ts-userscript-utilities/cjs/Validators/TextLengthValidators';
 
 const ids = {
     modal: 'beadh-modal',
@@ -101,14 +98,13 @@ function buildLabel(labelConfig: LabelConfig) {
 
 function buildTextarea(
     labelConfig: LabelConfig,
-    textareaConfig: TextareaConfig,
-    validationBounds: { min: number; max: number; }
+    textareaConfig: TextareaConfig
 ) {
     return `
-<div class="d-flex ff-column-nowrap gs4 gsy" data-controller="se-char-counter" data-se-char-counter-min="${validationBounds.min}" data-se-char-counter-max="${validationBounds.max}">
+<div class="d-flex ff-column-nowrap gs4 gsy">
     ${buildLabel(labelConfig)}
-    <textarea style="font-family:monospace" class="flex--item s-textarea" data-se-char-counter-target="field" data-is-valid-length="false" id="${textareaConfig.id}" name="${textareaConfig.name}" placeholder="${textareaConfig.placeholder}" rows="${textareaConfig.rows}" data-${data.controller}-target="${textareaConfig.dataTarget}"></textarea>
-    <div data-se-char-counter-target="output"></div>
+    <textarea style="font-family:monospace" class="flex--item s-textarea" id="${textareaConfig.id}" name="${textareaConfig.name}" placeholder="${textareaConfig.placeholder}" rows="${textareaConfig.rows}" data-${data.controller}-target="${textareaConfig.dataTarget}"></textarea>
+    <span class="text-counter"></span>
 </div>
 `.trim();
 }
@@ -142,8 +138,7 @@ ${buildTextarea(
         placeholder: 'Please provide at least a brief explanation of what this user has done; this will be logged with the action and may need to be referenced later.',
         rows: 6,
         dataTarget: data.target.deletionDetails
-    },
-    deleteUserReasonDetailBounds
+    }
 )}
 ${buildTextarea(
     {
@@ -158,8 +153,7 @@ ${buildTextarea(
         placeholder: 'Examples: &quot;possible sock of /users/XXXX, see mod room [link] for discussion&quot; or &quot;left a series of abusive comments, suspend on next occurrence&quot;',
         rows: 4,
         dataTarget: data.target.annotationDetails
-    },
-    annotationTextLengthBounds
+    }
 )}
 <div class="d-flex fd-row">
     <div class="s-check-control">
