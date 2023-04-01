@@ -3,7 +3,7 @@
 // @description  Adds streamlined interface for deleting evasion accounts, then annotating and messaging the main accounts
 // @homepage     https://github.com/HenryEcker/SO-Mod-UserScripts
 // @author       Henry Ecker (https://github.com/HenryEcker)
-// @version      0.2.3
+// @version      0.3.0
 // @downloadURL  https://github.com/HenryEcker/SO-Mod-BanEvasionAccountDeleteHelper/raw/master/dist/BanEvasionAccountDeleteHelper.user.js
 // @updateURL    https://github.com/HenryEcker/SO-Mod-BanEvasionAccountDeleteHelper/raw/master/dist/BanEvasionAccountDeleteHelper.user.js
 //
@@ -262,19 +262,19 @@
         </select>
     </div>
 </div>
-<div class="d-flex ff-column-nowrap gs4 gsy" data-controller="se-char-counter" data-se-char-counter-min="15" data-se-char-counter-max="600">
+<div class="d-flex ff-column-nowrap gs4 gsy">
     <label class="s-label flex--item" for="beadh-delete-reason-details">Please provide details leading to the deletion of this account <span class="s-label--status s-label--status__required">Required</span>
         <p class="s-description mt2"><span class="fw-bold">Reminder</span>: Markdown is not supported!</p>
     </label>
-    <textarea style="font-family:monospace" class="flex--item s-textarea" data-se-char-counter-target="field" data-is-valid-length="false" id="beadh-delete-reason-details" name="deleteReasonDetails" placeholder="Please provide at least a brief explanation of what this user has done; this will be logged with the action and may need to be referenced later." rows="6" data-beadh-form-target="delete-reason-detail-text"></textarea>
-    <div data-se-char-counter-target="output"></div>
+    <textarea style="font-family:monospace" class="flex--item s-textarea" id="beadh-delete-reason-details" name="deleteReasonDetails" placeholder="Please provide at least a brief explanation of what this user has done; this will be logged with the action and may need to be referenced later." rows="6" data-beadh-form-target="delete-reason-detail-text"></textarea>
+    <span class="text-counter"></span>
 </div>
-<div class="d-flex ff-column-nowrap gs4 gsy" data-controller="se-char-counter" data-se-char-counter-min="10" data-se-char-counter-max="300">
+<div class="d-flex ff-column-nowrap gs4 gsy">
     <label class="s-label flex--item" for="beadh-mod-menu-annotation">Annotate the main account <span class="s-label--status s-label--status__required">Required</span>
         <p class="s-description mt2"><span class="fw-bold">Reminder</span>: Markdown is not supported!</p>
     </label>
-    <textarea style="font-family:monospace" class="flex--item s-textarea" data-se-char-counter-target="field" data-is-valid-length="false" id="beadh-mod-menu-annotation" name="annotation" placeholder="Examples: &quot;possible sock of /users/XXXX, see mod room [link] for discussion&quot; or &quot;left a series of abusive comments, suspend on next occurrence&quot;" rows="4" data-beadh-form-target="annotation-detail-text"></textarea>
-    <div data-se-char-counter-target="output"></div>
+    <textarea style="font-family:monospace" class="flex--item s-textarea" id="beadh-mod-menu-annotation" name="annotation" placeholder="Examples: &quot;possible sock of /users/XXXX, see mod room [link] for discussion&quot; or &quot;left a series of abusive comments, suspend on next occurrence&quot;" rows="4" data-beadh-form-target="annotation-detail-text"></textarea>
+    <span class="text-counter"></span>
 </div>
 <div class="d-flex fd-row">
     <div class="s-check-control">
@@ -282,19 +282,31 @@
         <label class="s-label flex--item" for="beadh-message-user-checkbox">Open message user in new tab <span class="s-label--status">Optional</span></label>
     </div>
 </div>`);
-                const deleteDetailTextArea = this["delete-reason-detail-textTarget"];
-                deleteDetailTextArea.value = buildDetailStringFromObject({
-                    "Main Account": mainUrl + "\n",
-                    "Email": sockEmail,
-                    "Real name": sockRealName
-                }, ":  ", "\n", true) + "\n\n";
-                deleteDetailTextArea.focus();
-                deleteDetailTextArea.setSelectionRange(deleteDetailTextArea.value.length, deleteDetailTextArea.value.length);
-                this["annotation-detail-textTarget"].value = buildDetailStringFromObject({
-                    "Deleted evasion account": sockUrl,
-                    "Email": sockEmail,
-                    "Real name": sockRealName
-                }, ": ", " | ");
+                const jDeleteDetailTextArea = $(this["delete-reason-detail-textTarget"]);
+                jDeleteDetailTextArea.val(
+                    buildDetailStringFromObject({
+                        "Main Account": mainUrl + "\n",
+                        "Email": sockEmail,
+                        "Real name": sockRealName
+                    }, ":  ", "\n", true) + "\n\n"
+                ).charCounter({
+                    ...deleteUserReasonDetailBounds,
+                    target: jDeleteDetailTextArea.parent().find("span.text-counter")
+                });
+                const nDeleteDetailTextArea = jDeleteDetailTextArea[0];
+                nDeleteDetailTextArea.focus();
+                nDeleteDetailTextArea.setSelectionRange(nDeleteDetailTextArea.value.length, nDeleteDetailTextArea.value.length);
+                const jAnnotationTextarea = $(this["annotation-detail-textTarget"]);
+                jAnnotationTextarea.val(
+                    buildDetailStringFromObject({
+                        "Deleted evasion account": sockUrl,
+                        "Email": sockEmail,
+                        "Real name": sockRealName
+                    }, ": ", " | ")
+                ).charCounter({
+                    ...annotationTextLengthBounds,
+                    target: jAnnotationTextarea.parent().find("span.text-counter")
+                });
                 this["submit-actions-buttonTarget"].disabled = false;
             }
         };

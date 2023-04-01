@@ -1,3 +1,16 @@
+// Add StackExchange's Jquery Extension
+interface CharCounterOptions {
+    min: number;
+    max: number;
+    setIsValid?: (b: boolean) => void;
+    target?: JQuery | HTMLElement;
+    startAt?: number;
+}
+
+interface JQuery {
+    charCounter: (options: CharCounterOptions) => JQuery;
+}
+// Vite define
 // HTML
 declare const JS_MODAL_ID: string;
 declare const INITIAL_MODAL_HTML: string;
