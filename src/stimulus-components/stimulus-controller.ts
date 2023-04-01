@@ -117,30 +117,41 @@ export function addBanEvasionModalController() {
         },
         HANDLE_SUBMIT_ACTION(ev: ActionEvent) {
             ev.preventDefault();
-            this.validateFields(); // validate before confirming (it's more annoying to confirm, then get a message that the field needs fixed)
-            void StackExchange.helpers.showConfirmModal({
-                title: 'Are you sure you want to delete this account?',
-                body: 'You will be deleting this account and placing an annotation on the main. This operation cannot be undone.',
-                buttonLabelHtml: 'I\'m sure'
-            })
-                .then(actionConfirmed => {
-                    if (!actionConfirmed) {
-                        return;
-                    }
+            const jSubmitButton = $(this[CONTROLLER_SUBMIT_BUTTON_TARGET]);
+            jSubmitButton
+                .prop('disabled', true)
+                .addClass('is-loading');
+            try {
+                this.validateFields(); // validate before confirming (it's more annoying to confirm, then get a message that the field needs fixed)
+                void StackExchange.helpers.showConfirmModal({
+                    title: 'Are you sure you want to delete this account?',
+                    body: 'You will be deleting this account and placing an annotation on the main. This operation cannot be undone.',
+                    buttonLabelHtml: 'I\'m sure'
+                })
+                    .then(actionConfirmed => {
+                        if (!actionConfirmed) {
+                            return;
+                        }
 
-                    handleDeleteAndAnnotateUsers(this.sockAccountId, this.deletionReason, this.deletionDetails, this.mainAccountId, this.annotationDetails)
-                        .then(() => {
-                            if (this.shouldMessageAfter) {
-                                // Open new tab to send message to main account
-                                window.open(`/users/message/create/${this.mainAccountId}`, '_blank');
-                            }
-                            // Reload current page if delete and annotation is successful
-                            window.location.reload();
-                        })
-                        .catch(err => {
-                            console.error(err);
-                        });
-                });
+                        handleDeleteAndAnnotateUsers(this.sockAccountId, this.deletionReason, this.deletionDetails, this.mainAccountId, this.annotationDetails)
+                            .then(() => {
+                                if (this.shouldMessageAfter) {
+                                    // Open new tab to send message to main account
+                                    window.open(`/users/message/create/${this.mainAccountId}`, '_blank');
+                                }
+                                // Reload current page if delete and annotation is successful
+                                window.location.reload();
+                            })
+                            .catch(err => {
+                                console.error(err);
+                            });
+                    });
+            } catch (e) {
+                StackExchange.helpers.showToast(e.message, {type: 'danger'});
+                jSubmitButton
+                    .prop('disabled', false)
+                    .removeClass('is-loading');
+            }
         },
         HANDLE_CANCEL_ACTION(ev: ActionEvent) {
             ev.preventDefault();
