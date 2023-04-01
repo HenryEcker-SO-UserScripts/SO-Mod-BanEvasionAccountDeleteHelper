@@ -3,7 +3,7 @@
 // @description  Adds streamlined interface for deleting evasion accounts, then annotating and messaging the main accounts
 // @homepage     https://github.com/HenryEcker/SO-Mod-UserScripts
 // @author       Henry Ecker (https://github.com/HenryEcker)
-// @version      0.3.0
+// @version      0.3.1
 // @downloadURL  https://github.com/HenryEcker/SO-Mod-BanEvasionAccountDeleteHelper/raw/master/dist/BanEvasionAccountDeleteHelper.user.js
 // @updateURL    https://github.com/HenryEcker/SO-Mod-BanEvasionAccountDeleteHelper/raw/master/dist/BanEvasionAccountDeleteHelper.user.js
 //
@@ -207,24 +207,31 @@
             },
             handleSubmitActions(ev) {
                 ev.preventDefault();
-                this.validateFields();
-                void StackExchange.helpers.showConfirmModal({
-                    title: "Are you sure you want to delete this account?",
-                    body: "You will be deleting this account and placing an annotation on the main. This operation cannot be undone.",
-                    buttonLabelHtml: "I'm sure"
-                }).then((actionConfirmed) => {
-                    if (!actionConfirmed) {
-                        return;
-                    }
-                    handleDeleteAndAnnotateUsers(this.sockAccountId, this.deletionReason, this.deletionDetails, this.mainAccountId, this.annotationDetails).then(() => {
-                        if (this.shouldMessageAfter) {
-                            window.open(`/users/message/create/${this.mainAccountId}`, "_blank");
+                const jSubmitButton = $(this["submit-actions-buttonTarget"]);
+                jSubmitButton.prop("disabled", true).addClass("is-loading");
+                try {
+                    this.validateFields();
+                    void StackExchange.helpers.showConfirmModal({
+                        title: "Are you sure you want to delete this account?",
+                        body: "You will be deleting this account and placing an annotation on the main. This operation cannot be undone.",
+                        buttonLabelHtml: "I'm sure"
+                    }).then((actionConfirmed) => {
+                        if (!actionConfirmed) {
+                            return;
                         }
-                        window.location.reload();
-                    }).catch((err) => {
-                        console.error(err);
+                        handleDeleteAndAnnotateUsers(this.sockAccountId, this.deletionReason, this.deletionDetails, this.mainAccountId, this.annotationDetails).then(() => {
+                            if (this.shouldMessageAfter) {
+                                window.open(`/users/message/create/${this.mainAccountId}`, "_blank");
+                            }
+                            window.location.reload();
+                        }).catch((err) => {
+                            console.error(err);
+                        });
                     });
-                });
+                } catch (e) {
+                    StackExchange.helpers.showToast(e.message, { type: "danger" });
+                    jSubmitButton.prop("disabled", false).removeClass("is-loading");
+                }
             },
             handleCancelActions(ev) {
                 ev.preventDefault();
