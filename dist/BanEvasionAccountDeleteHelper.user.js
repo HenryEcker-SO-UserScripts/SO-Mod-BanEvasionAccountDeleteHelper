@@ -3,7 +3,7 @@
 // @description  Adds streamlined interface for deleting evasion accounts, then annotating and messaging the main accounts
 // @homepage     https://github.com/HenryEcker/SO-Mod-UserScripts
 // @author       Henry Ecker (https://github.com/HenryEcker)
-// @version      0.3.1
+// @version      0.3.2
 // @downloadURL  https://github.com/HenryEcker/SO-Mod-BanEvasionAccountDeleteHelper/raw/master/dist/BanEvasionAccountDeleteHelper.user.js
 // @updateURL    https://github.com/HenryEcker/SO-Mod-BanEvasionAccountDeleteHelper/raw/master/dist/BanEvasionAccountDeleteHelper.user.js
 //
@@ -299,7 +299,7 @@
                 ).charCounter({
                     ...deleteUserReasonDetailBounds,
                     target: jDeleteDetailTextArea.parent().find("span.text-counter")
-                });
+                }).trigger("charCounterUpdate");
                 const nDeleteDetailTextArea = jDeleteDetailTextArea[0];
                 nDeleteDetailTextArea.focus();
                 nDeleteDetailTextArea.setSelectionRange(nDeleteDetailTextArea.value.length, nDeleteDetailTextArea.value.length);
@@ -313,7 +313,7 @@
                 ).charCounter({
                     ...annotationTextLengthBounds,
                     target: jAnnotationTextarea.parent().find("span.text-counter")
-                });
+                }).trigger("charCounterUpdate");
                 this["submit-actions-buttonTarget"].disabled = false;
             }
         };

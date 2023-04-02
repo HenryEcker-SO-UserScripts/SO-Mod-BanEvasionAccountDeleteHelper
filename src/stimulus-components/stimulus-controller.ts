@@ -201,7 +201,8 @@ export function addBanEvasionModalController() {
                 .charCounter({
                     ...deleteUserReasonDetailBounds,
                     target: jDeleteDetailTextArea.parent().find('span.text-counter')
-                });
+                })
+                .trigger('charCounterUpdate');
 
             const nDeleteDetailTextArea = jDeleteDetailTextArea[0];
             nDeleteDetailTextArea.focus();
@@ -221,7 +222,8 @@ export function addBanEvasionModalController() {
                 .charCounter({
                     ...annotationTextLengthBounds,
                     target: jAnnotationTextarea.parent().find('span.text-counter')
-                });
+                })
+                .trigger('charCounterUpdate');
             // Enable form submit button now that the fields are active
             this[CONTROLLER_SUBMIT_BUTTON_TARGET].disabled = false;
         },
