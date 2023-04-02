@@ -3,7 +3,7 @@
 // @description  Adds streamlined interface for deleting evasion accounts, then annotating and messaging the main accounts
 // @homepage     https://github.com/HenryEcker/SO-Mod-UserScripts
 // @author       Henry Ecker (https://github.com/HenryEcker)
-// @version      0.3.2
+// @version      0.3.3
 // @downloadURL  https://github.com/HenryEcker/SO-Mod-BanEvasionAccountDeleteHelper/raw/master/dist/BanEvasionAccountDeleteHelper.user.js
 // @updateURL    https://github.com/HenryEcker/SO-Mod-BanEvasionAccountDeleteHelper/raw/master/dist/BanEvasionAccountDeleteHelper.user.js
 //
@@ -140,6 +140,13 @@
             throw new Error(`Delete user reason detail text must be between ${deleteUserReasonDetailBounds.min} and ${deleteUserReasonDetailBounds.max} characters.`);
         }
         return true;
+    }
+
+    function configureCharCounter(jTextarea, populateText, charCounterOptions) {
+        if (charCounterOptions.target === void 0) {
+            charCounterOptions.target = jTextarea.parent().find("span.text-counter");
+        }
+        jTextarea.val(populateText).charCounter(charCounterOptions).trigger("charCounterUpdate");
     }
 
     function getUserIdFromAccountInfoURL() {
@@ -290,30 +297,27 @@
     </div>
 </div>`);
                 const jDeleteDetailTextArea = $(this["delete-reason-detail-textTarget"]);
-                jDeleteDetailTextArea.val(
+                configureCharCounter(
+                    jDeleteDetailTextArea,
                     buildDetailStringFromObject({
                         "Main Account": mainUrl + "\n",
                         "Email": sockEmail,
                         "Real name": sockRealName
-                    }, ":  ", "\n", true) + "\n\n"
-                ).charCounter({
-                    ...deleteUserReasonDetailBounds,
-                    target: jDeleteDetailTextArea.parent().find("span.text-counter")
-                }).trigger("charCounterUpdate");
+                    }, ":  ", "\n", true) + "\n\n",
+                    deleteUserReasonDetailBounds
+                );
                 const nDeleteDetailTextArea = jDeleteDetailTextArea[0];
                 nDeleteDetailTextArea.focus();
                 nDeleteDetailTextArea.setSelectionRange(nDeleteDetailTextArea.value.length, nDeleteDetailTextArea.value.length);
-                const jAnnotationTextarea = $(this["annotation-detail-textTarget"]);
-                jAnnotationTextarea.val(
+                configureCharCounter(
+                    $(this["annotation-detail-textTarget"]),
                     buildDetailStringFromObject({
                         "Deleted evasion account": sockUrl,
                         "Email": sockEmail,
                         "Real name": sockRealName
-                    }, ": ", " | ")
-                ).charCounter({
-                    ...annotationTextLengthBounds,
-                    target: jAnnotationTextarea.parent().find("span.text-counter")
-                }).trigger("charCounterUpdate");
+                    }, ": ", " | "),
+                    annotationTextLengthBounds
+                );
                 this["submit-actions-buttonTarget"].disabled = false;
             }
         };
