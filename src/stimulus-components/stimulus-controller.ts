@@ -11,8 +11,10 @@ import {buildDetailStringFromObject} from 'se-ts-userscript-utilities/Formatters
 import {
     annotationTextLengthBounds,
     assertValidAnnotationTextLength,
-    assertValidDeleteUserReasonDetailTextLength, deleteUserReasonDetailBounds
+    assertValidDeleteUserReasonDetailTextLength,
+    deleteUserReasonDetailBounds
 } from 'se-ts-userscript-utilities/Validators/TextLengthValidators';
+import {configureCharCounter} from 'se-ts-userscript-utilities/StacksHelpers/StacksCharCounter';
 
 
 /*** User Actions ***/
@@ -190,40 +192,29 @@ export function addBanEvasionModalController() {
 
 
             const jDeleteDetailTextArea: JQuery<HTMLTextAreaElement> = $(this[DELETION_DETAILS_TARGET]);
-            jDeleteDetailTextArea
-                .val(
-                    buildDetailStringFromObject({
-                        'Main Account': mainUrl + '\n',
-                        'Email': sockEmail,
-                        'Real name': sockRealName,
-                    }, ':  ', '\n', true) + '\n\n'
-                )
-                .charCounter({
-                    ...deleteUserReasonDetailBounds,
-                    target: jDeleteDetailTextArea.parent().find('span.text-counter')
-                })
-                .trigger('charCounterUpdate');
-
+            configureCharCounter(
+                jDeleteDetailTextArea,
+                buildDetailStringFromObject({
+                    'Main Account': mainUrl + '\n',
+                    'Email': sockEmail,
+                    'Real name': sockRealName,
+                }, ':  ', '\n', true) + '\n\n',
+                deleteUserReasonDetailBounds
+            );
             const nDeleteDetailTextArea = jDeleteDetailTextArea[0];
             nDeleteDetailTextArea.focus();
             nDeleteDetailTextArea.setSelectionRange(nDeleteDetailTextArea.value.length, nDeleteDetailTextArea.value.length);
 
             // Prime annotation detail text
-            const jAnnotationTextarea: JQuery<HTMLTextAreaElement> = $(this[ANNOTATION_DETAILS_TARGET]);
-            //
-            jAnnotationTextarea
-                .val(
-                    buildDetailStringFromObject({
-                        'Deleted evasion account': sockUrl,
-                        'Email': sockEmail,
-                        'Real name': sockRealName
-                    }, ': ', ' | ')
-                )
-                .charCounter({
-                    ...annotationTextLengthBounds,
-                    target: jAnnotationTextarea.parent().find('span.text-counter')
-                })
-                .trigger('charCounterUpdate');
+            configureCharCounter(
+                $(this[ANNOTATION_DETAILS_TARGET]),
+                buildDetailStringFromObject({
+                    'Deleted evasion account': sockUrl,
+                    'Email': sockEmail,
+                    'Real name': sockRealName
+                }, ': ', ' | '),
+                annotationTextLengthBounds
+            );
             // Enable form submit button now that the fields are active
             this[CONTROLLER_SUBMIT_BUTTON_TARGET].disabled = false;
         },
