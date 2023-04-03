@@ -3,7 +3,7 @@
 // @description  Adds streamlined interface for deleting evasion accounts, then annotating and messaging the main accounts
 // @homepage     https://github.com/HenryEcker/SO-Mod-UserScripts
 // @author       Henry Ecker (https://github.com/HenryEcker)
-// @version      0.3.3
+// @version      0.3.4
 // @downloadURL  https://github.com/HenryEcker/SO-Mod-BanEvasionAccountDeleteHelper/raw/master/dist/BanEvasionAccountDeleteHelper.user.js
 // @updateURL    https://github.com/HenryEcker/SO-Mod-BanEvasionAccountDeleteHelper/raw/master/dist/BanEvasionAccountDeleteHelper.user.js
 //
@@ -149,6 +149,27 @@
         jTextarea.val(populateText).charCounter(charCounterOptions).trigger("charCounterUpdate");
     }
 
+    function getMessageFromCaughtElement(e) {
+        if (e instanceof Error) {
+            return e.message;
+        } else if (typeof e === "string") {
+            return e;
+        } else {
+            console.error(e);
+            return e.toString();
+        }
+    }
+    async function disableSubmitButtonAndToastErrors(jSubmitButton, handleActions) {
+        jSubmitButton.prop("disabled", true).addClass("is-loading");
+        try {
+            await handleActions();
+        } catch (error) {
+            StackExchange.helpers.showToast(getMessageFromCaughtElement(error), { type: "danger" });
+        } finally {
+            jSubmitButton.prop("disabled", false).removeClass("is-loading");
+        }
+    }
+
     function getUserIdFromAccountInfoURL() {
         const userId = fetchUserIdFromHref(window.location.pathname);
         if (userId === void 0) {
@@ -213,32 +234,26 @@
                 assertValidAnnotationTextLength(this.annotationDetails.length);
             },
             handleSubmitActions(ev) {
-                ev.preventDefault();
-                const jSubmitButton = $(this["submit-actions-buttonTarget"]);
-                jSubmitButton.prop("disabled", true).addClass("is-loading");
-                try {
-                    this.validateFields();
-                    void StackExchange.helpers.showConfirmModal({
-                        title: "Are you sure you want to delete this account?",
-                        body: "You will be deleting this account and placing an annotation on the main. This operation cannot be undone.",
-                        buttonLabelHtml: "I'm sure"
-                    }).then((actionConfirmed) => {
+                void disableSubmitButtonAndToastErrors(
+                    $(this["submit-actions-buttonTarget"]),
+                    async () => {
+                        ev.preventDefault();
+                        this.validateFields();
+                        const actionConfirmed = await StackExchange.helpers.showConfirmModal({
+                            title: "Are you sure you want to delete this account?",
+                            body: "You will be deleting this account and placing an annotation on the main. This operation cannot be undone.",
+                            buttonLabelHtml: "I'm sure"
+                        });
                         if (!actionConfirmed) {
                             return;
                         }
-                        handleDeleteAndAnnotateUsers(this.sockAccountId, this.deletionReason, this.deletionDetails, this.mainAccountId, this.annotationDetails).then(() => {
-                            if (this.shouldMessageAfter) {
-                                window.open(`/users/message/create/${this.mainAccountId}`, "_blank");
-                            }
-                            window.location.reload();
-                        }).catch((err) => {
-                            console.error(err);
-                        });
-                    });
-                } catch (e) {
-                    StackExchange.helpers.showToast(e.message, { type: "danger" });
-                    jSubmitButton.prop("disabled", false).removeClass("is-loading");
-                }
+                        await handleDeleteAndAnnotateUsers(this.sockAccountId, this.deletionReason, this.deletionDetails, this.mainAccountId, this.annotationDetails);
+                        if (this.shouldMessageAfter) {
+                            window.open(`/users/message/create/${this.mainAccountId}`, "_blank");
+                        }
+                        window.location.reload();
+                    }
+                );
             },
             handleCancelActions(ev) {
                 ev.preventDefault();

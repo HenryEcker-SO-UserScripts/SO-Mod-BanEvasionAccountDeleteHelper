@@ -15,6 +15,7 @@ import {
     deleteUserReasonDetailBounds
 } from 'se-ts-userscript-utilities/Validators/TextLengthValidators';
 import {configureCharCounter} from 'se-ts-userscript-utilities/StacksHelpers/StacksCharCounter';
+import {disableSubmitButtonAndToastErrors} from 'se-ts-userscript-utilities/StacksHelpers/StacksModal';
 
 
 /*** User Actions ***/
@@ -118,42 +119,28 @@ export function addBanEvasionModalController() {
             assertValidAnnotationTextLength(this.annotationDetails.length);
         },
         HANDLE_SUBMIT_ACTION(ev: ActionEvent) {
-            ev.preventDefault();
-            const jSubmitButton = $(this[CONTROLLER_SUBMIT_BUTTON_TARGET]);
-            jSubmitButton
-                .prop('disabled', true)
-                .addClass('is-loading');
-            try {
-                this.validateFields(); // validate before confirming (it's more annoying to confirm, then get a message that the field needs fixed)
-                void StackExchange.helpers.showConfirmModal({
-                    title: 'Are you sure you want to delete this account?',
-                    body: 'You will be deleting this account and placing an annotation on the main. This operation cannot be undone.',
-                    buttonLabelHtml: 'I\'m sure'
-                })
-                    .then(actionConfirmed => {
-                        if (!actionConfirmed) {
-                            return;
-                        }
-
-                        handleDeleteAndAnnotateUsers(this.sockAccountId, this.deletionReason, this.deletionDetails, this.mainAccountId, this.annotationDetails)
-                            .then(() => {
-                                if (this.shouldMessageAfter) {
-                                    // Open new tab to send message to main account
-                                    window.open(`/users/message/create/${this.mainAccountId}`, '_blank');
-                                }
-                                // Reload current page if delete and annotation is successful
-                                window.location.reload();
-                            })
-                            .catch(err => {
-                                console.error(err);
-                            });
+            void disableSubmitButtonAndToastErrors(
+                $(this[CONTROLLER_SUBMIT_BUTTON_TARGET]),
+                async () => {
+                    ev.preventDefault();
+                    this.validateFields(); // validate before confirming (it's more annoying to confirm, then get a message that the field needs fixed)
+                    const actionConfirmed = await StackExchange.helpers.showConfirmModal({
+                        title: 'Are you sure you want to delete this account?',
+                        body: 'You will be deleting this account and placing an annotation on the main. This operation cannot be undone.',
+                        buttonLabelHtml: 'I\'m sure'
                     });
-            } catch (e) {
-                StackExchange.helpers.showToast(e.message, {type: 'danger'});
-                jSubmitButton
-                    .prop('disabled', false)
-                    .removeClass('is-loading');
-            }
+                    if (!actionConfirmed) {
+                        return;
+                    }
+                    await handleDeleteAndAnnotateUsers(this.sockAccountId, this.deletionReason, this.deletionDetails, this.mainAccountId, this.annotationDetails);
+                    if (this.shouldMessageAfter) {
+                        // Open new tab to send message to main account
+                        window.open(`/users/message/create/${this.mainAccountId}`, '_blank');
+                    }
+                    // Reload current page if delete and annotation is successful
+                    window.location.reload();
+                }
+            );
         },
         HANDLE_CANCEL_ACTION(ev: ActionEvent) {
             ev.preventDefault();
