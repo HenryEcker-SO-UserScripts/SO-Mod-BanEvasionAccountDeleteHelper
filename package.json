@@ -7,7 +7,8 @@
     "type": "git",
     "url": "https://github.com/HenryEcker/SO-Mod-BanEvasionAccountDeleteHelper",
     "homepage": "https://github.com/HenryEcker/SO-Mod-BanEvasionAccountDeleteHelper",
-    "dist_url": "https://github.com/HenryEcker/SO-Mod-BanEvasionAccountDeleteHelper/raw/master/dist/"
+    "dist_url": "https://github.com/HenryEcker/SO-Mod-BanEvasionAccountDeleteHelper/raw/master/dist/",
+    "dist_meta_url": "https://github.com/HenryEcker/SO-Mod-BanEvasionAccountDeleteHelper/raw/master/dist/meta/"
   },
   "scripts": {
     "lint": "eslint src",
