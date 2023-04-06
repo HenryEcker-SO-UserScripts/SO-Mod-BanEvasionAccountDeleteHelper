@@ -3,7 +3,7 @@
 // @description  Adds streamlined interface for deleting evasion accounts, then annotating and messaging the main accounts
 // @homepage     https://github.com/HenryEcker/SO-Mod-UserScripts
 // @author       Henry Ecker (https://github.com/HenryEcker)
-// @version      0.3.4
+// @version      0.3.5
 // @downloadURL  https://github.com/HenryEcker/SO-Mod-BanEvasionAccountDeleteHelper/raw/master/dist/BanEvasionAccountDeleteHelper.user.js
 // @updateURL    https://github.com/HenryEcker/SO-Mod-BanEvasionAccountDeleteHelper/raw/master/dist/BanEvasionAccountDeleteHelper.user.js
 //
@@ -32,24 +32,29 @@
         };
     }
 
-    function getFormDataFromObject(obj) {
-        return Object.entries(obj).reduce((acc, [key, value]) => {
-            acc.set(key, value);
-            return acc;
-        }, new FormData());
-    }
-
-    function fetchPostFormData(endPoint, data) {
-        return fetch(endPoint, {
-            method: "POST",
-            body: getFormDataFromObject(data)
+    function ajaxPostWithData(endPoint, data, shouldReturnData = true) {
+        return new Promise((resolve, reject) => {
+            void $.ajax({
+                type: "POST",
+                url: endPoint,
+                data
+            }).done((resData, textStatus, xhr) => {
+                resolve(
+                    shouldReturnData ? resData : {
+                        status: xhr.status,
+                        statusText: textStatus
+                    }
+                );
+            }).fail((res) => {
+                reject(res.responseText ?? "An unknown error occurred");
+            });
         });
     }
 
     function getUserPii(userId) {
-        return fetchPostFormData(
+        return ajaxPostWithData(
             "/admin/all-pii", { id: userId, fkey: StackExchange.options.user.fkey }
-        ).then((res) => res.text()).then((resText) => {
+        ).then((resText) => {
             const html = $(resText);
             return {
                 email: html[1].children[1].innerText.trim(),
@@ -60,21 +65,23 @@
     }
 
     function deleteUser(userId, deleteReason, deleteReasonDetails) {
-        return fetchPostFormData(
+        return ajaxPostWithData(
             `/admin/users/${userId}/delete`, {
                 fkey: StackExchange.options.user.fkey,
                 deleteReason,
                 deleteReasonDetails
-            }
+            },
+            false
         );
     }
 
     function annotateUser(userId, annotationDetails) {
-        return fetchPostFormData(
+        return ajaxPostWithData(
             `/admin/users/${userId}/annotate`, {
                 fkey: StackExchange.options.user.fkey,
                 annotation: annotationDetails
-            }
+            },
+            false
         );
     }
 
