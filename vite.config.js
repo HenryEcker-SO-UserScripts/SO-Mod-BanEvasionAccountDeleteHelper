@@ -13,7 +13,7 @@ const fileNameBase = 'BanEvasionAccountDeleteHelper';
 const bannerText = `// ==UserScript==
 // @name         Ban Evasion Account Delete Helper
 // @description  Adds streamlined interface for deleting evasion accounts, then annotating and messaging the main accounts
-// @homepage     https://github.com/HenryEcker/SO-Mod-UserScripts
+// @homepage     ${packageConfig.repository.homepage}
 // @author       Henry Ecker (https://github.com/HenryEcker)
 // @version      ${packageConfig.version}
 // @downloadURL  ${packageConfig.repository.dist_url}${fileNameBase}.user.js
