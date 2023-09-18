@@ -2,7 +2,7 @@
 
 This is UserScript provides a single interface to delete the ban evasion account, annotate the main account, and open a new window to send a mod message to the main account.
 
-[![Click to install UserScript](https://img.shields.io/badge/install-UserScript-brightgreen)](https://github.com/HenryEcker/SO-Mod-BanEvasionAccountDeleteHelper/raw/master/dist/BanEvasionAccountDeleteHelper.user.js)
+[![Click to install UserScript](https://img.shields.io/badge/install-UserScript-brightgreen)](https://github.com/HenryEcker-SO-UserScripts/SO-Mod-BanEvasionAccountDeleteHelper/raw/master/dist/BanEvasionAccountDeleteHelper.user.js)
 
 To use:
 1. Access a user's account dashboard `/users/account-info`
