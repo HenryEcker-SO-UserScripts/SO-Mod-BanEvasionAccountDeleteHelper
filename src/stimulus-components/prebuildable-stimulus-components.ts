@@ -40,8 +40,8 @@ function convertKeyToTargetAccessor(s: string) {
 
 const initialModal = `
 <aside class="s-modal s-modal__danger" id="${ids.modal}" tabindex="-1" role="dialog" aria-hidden="false" data-controller="s-modal" data-s-modal-target="modal">
-    <div class="s-modal--dialog" style="width: max-content; max-width: 65vw;" role="document" data-controller="${data.controller}">
-        <h1 class="s-modal--header">Delete Ban Evasion Account</h1>
+    <div class="s-modal--dialog" style="width: max-content; max-width: 65vw;" role="document" data-controller="${data.controller} se-draggable">
+        <h1 class="s-modal--header c-move" data-se-draggable-target="handle">Delete Ban Evasion Account</h1>
         <div class="s-modal--body">
             <div class="d-flex fd-column g12 mx8" data-${data.controller}-target="${data.target.formElements}">
                 <div class="d-flex fd-row g4 jc-space-between ai-center">
